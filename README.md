@@ -1,5 +1,5 @@
-In this repo, I'll be using branches to publish each coding interview challenge I've completed.
+This challenge is to solve a “Character Frequency Count” problem.
 
-# Table of Contents
-- [LIS]()
-- [Appmax]()
+**How to run:**
+- task python
+- task rust
