@@ -1,0 +1,28 @@
+services:
+  be:
+    image: python:3.12.10-alpine3.21
+    container_name: maxters-app
+    restart: always
+    working_dir: /app
+    volumes:
+      - ./src:/app/src
+      - ./data:/app/data
+    command: >
+      sh -c "python -m pip install --user --no-cache-dir pandas requests \
+      sqlalchemy pymysql cryptography
+      && python src/main.py"
+    depends_on:
+      - db
+
+  db:
+    image: mysql/mysql-server:latest
+    container_name: maxters-db
+    restart: always
+    environment:
+      - MYSQL_USER=mysqlUser
+      - MYSQL_DATABASE=mysqlDB
+      - MYSQL_PASSWORD=mysqlPW
+      - MYSQL_ROOT_PASSWORD=rootpw
+      - MYSQL_ROOT_HOST=%
+    ports:
+      - 3306:3306
