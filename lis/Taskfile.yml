@@ -1,0 +1,15 @@
+# https://taskfile.dev
+
+version: '3'
+
+tasks:
+  python:
+    cmds:
+      - python main.py
+    silent: true
+
+  rust:
+    cmds:
+      - rustc main.rs
+      - ./main
+    silent: true
