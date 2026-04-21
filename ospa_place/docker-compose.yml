@@ -1,0 +1,56 @@
+# Settings and configurations that are common for all containers
+x-minio-common: &minio-common
+  image: quay.io/minio/minio:latest
+  command: server --console-address ":9090" /data
+  ports:
+    - "9000:9000"
+    - "9090:9090"
+  healthcheck:
+    test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+    interval: 30s
+    timeout: 20s
+    retries: 3
+
+services:
+  minio1:
+    <<: *minio-common
+    hostname: minio1
+    container_name: dop-data-lake
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    volumes:
+      - ./data_lake:/data
+
+  postgres-db:
+    image: postgis/postgis:15-3.4
+    hostname: postgres
+    container_name: dop-data-warehouse
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: dop
+    volumes:
+      - ./data_warehouse:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d dop" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+
+  etl:
+    build:
+      dockerfile: ./src/Dockerfile
+    container_name: dop-etl
+    depends_on:
+      minio1:
+        condition: service_healthy
+      postgres-db:
+        condition: service_healthy
+    #command: ["tail", "-f", "/dev/null"]
+    volumes:
+      - ./src:/app
