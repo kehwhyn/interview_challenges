@@ -37,10 +37,9 @@ class EmpresasSilver():
         df_bronze["area_utilizada"] = df_bronze["area_utilizada"].astype(float)
 
         cols_to_bool = ["ind_simples", "ind_mei", "ind_possui_alvara"]
-        df_bronze[cols_to_bool] = df_bronze[cols_to_bool].map(
+        df_bronze[cols_to_bool] = df_bronze[cols_to_bool].replace(
             {"sim": True, "s": True, "não": False, "n": False}
         )
-
         print("Saving file to database and s3://silver/")
         # I learnt that polygon can be saved as multipolygon
         # In this case when I save to the database, sqlalchemy will convert for me
