@@ -53,3 +53,4 @@ services:
         condition: service_healthy
     volumes:
       - ./src:/app
+      - ./explore:/app/explore
