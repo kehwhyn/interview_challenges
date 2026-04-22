@@ -1,10 +1,10 @@
 start_services:
-	mkdir -p data_lake data_warehouse
+	python fs_manager.py create
 	docker compose up -d
 
 stop_services:
-	docker compose down
-	rm -rf data_lake data_warehouse
+	docker compose down -v
+	python fs_manager.py delete
 
 run_bairros_bronze:
 	docker exec dop-etl python main.py --service bairros_bronze --dataset bairro-oficial --filename 20230502_bairro_oficial

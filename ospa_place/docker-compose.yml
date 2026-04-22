@@ -51,6 +51,5 @@ services:
         condition: service_healthy
       postgres-db:
         condition: service_healthy
-    #command: ["tail", "-f", "/dev/null"]
     volumes:
       - ./src:/app

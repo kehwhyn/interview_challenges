@@ -1,4 +1,3 @@
-import minio
 import pandas as pd
 import sqlalchemy as sa
 
@@ -49,15 +48,6 @@ class OnibusSilver():
         # During my research I found that BH is UTM S23 and has SRID 31983
         # I can use geopandas to convert and save as parquet to optimize
         # I won't do this know because this is a mvp of sorts
-        client = minio.Minio(
-            settings.MINIO_HOST,
-            settings.MINIO_ROOT_USER,
-            settings.MINIO_ROOT_PASSWORD,
-            secure=False
-        )
-        if not client.bucket_exists("silver"):
-            client.make_bucket("silver")
-
         df_bronze.to_parquet(
             f"s3://silver/{filename}.parquet",
             engine="pyarrow",
