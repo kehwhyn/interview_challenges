@@ -50,27 +50,27 @@ def main():
     logger.info(f"Running service: {args.service} for dataset: {args.dataset} and filename: {args.filename}")
 
     services: dict[str, object] = {
-        "bairros_bronze": BairrosBronze(),
-        "bairros_silver": BairrosSilver(),
-        "empresas_bronze": EmpresasBronze(),
-        "empresas_silver": EmpresasSilver(),
-        "onibus_bronze": OnibusBronze(),
-        "onibus_silver": OnibusSilver(),
+        "bairros_bronze": BairrosBronze,
+        "bairros_silver": BairrosSilver,
+        "empresas_bronze": EmpresasBronze,
+        "empresas_silver": EmpresasSilver,
+        "onibus_bronze": OnibusBronze,
+        "onibus_silver": OnibusSilver,
     }
 
-    service = services.get(args.service)
+    service_class = services.get(args.service)
 
-    if service is None:
+    if service_class is None:
         logger.error(f"Service {args.service} not found. Available services: {list(services.keys())}")
         return
 
     try:
+        service = service_class()
         service.run(args)
-    except Exception as e:
-        logger.exception(f"Service {args.service} failed")
-        sys.exit(1)
 
-    service.run(args)
+    except Exception as e:
+        logger.exception(f"Service {args.service} failed => {e}")
+        sys.exit(1)
 
 
 if __name__ == "__main__":
