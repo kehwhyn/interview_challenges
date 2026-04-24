@@ -21,9 +21,9 @@ class BairrosSilver():
         bairros_table = BairroOficial()
 
         try:
-            logger.info("Creating tables")
+            logger.info("Creating table")
             engine: sa.Engine = sa.create_engine(settings.get_database_url())
-            bairros_table.metadata.create_all(engine)
+            bairros_table.__table__.create(engine, checkfirst=True)
 
             logger.info("Fetching bairros bronze data from minio")
             df_bronze: pd.DataFrame = pd.read_csv(

@@ -23,7 +23,7 @@ class EmpresasSilver():
         try:
             logger.info("Creating tables")
             engine: sa.Engine = sa.create_engine(settings.get_database_url())
-            empresas_table.metadata.create_all(engine)
+            empresas_table.__table__.create(engine, checkfirst=True)
 
             logger.info(f"Reading file from s3://bronze/{filename}.csv")
             df_bronze: pd.DataFrame = pd.read_csv(
