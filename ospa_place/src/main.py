@@ -1,50 +1,26 @@
 import sys
-import logging
 import argparse
+import logging as lg
 
-from services.silver.onibus_silver import OnibusSilver
-from services.bronze.onibus_bronze import OnibusBronze
-from services.bronze.bairros_bronze import BairrosBronze
-from services.silver.bairros_silver import BairrosSilver
-from services.bronze.empresas_bronze import EmpresasBronze
-from services.silver.empresas_silver import EmpresasSilver
+from utils.logger import Logger
 
-
-def setup_logging():
-    """Configure root logger once for entire application"""
-    root_logger = logging.getLogger()
-    level = logging.INFO
-    root_logger.setLevel(level)
-
-    # Remove existing handlers to avoid duplicates
-    if root_logger.handlers:
-        root_logger.handlers.clear()
-
-    # Create console handler
-    console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setLevel(level)
-
-    # Format with module name
-    formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        datefmt='%Y-%m-%d %H:%M:%S'
-    )
-    console_handler.setFormatter(formatter)
-    root_logger.addHandler(console_handler)
-
-    root_logger.info(f"Logging configured level={level}")
+from services.extract.onibus_bronze import OnibusBronze
+from services.transform.onibus_silver import OnibusSilver
+from services.extract.bairros_bronze import BairrosBronze
+from services.transform.bairros_silver import BairrosSilver
+from services.extract.empresas_bronze import EmpresasBronze
+from services.transform.empresas_silver import EmpresasSilver
 
 
 def main():
-    # Setup logging FIRST
-    setup_logging()
-    logger = logging.getLogger(__name__)
+    app_logger: Logger = Logger()
+    logger: lg.Logging = app_logger.get_logger(__name__)
 
     parser = argparse.ArgumentParser()
 
+    parser.add_argument("--service", help="Name of the service to run", required=True)
     parser.add_argument("--dataset", help="Name of the dataset")
     parser.add_argument("--filename", help="Name of the file to download without extension")
-    parser.add_argument("--service", help="Name of the service to run", required=True)
 
     args = parser.parse_args()
     logger.info(f"Running service: {args.service} for dataset: {args.dataset} and filename: {args.filename}")

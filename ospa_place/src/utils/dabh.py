@@ -1,17 +1,20 @@
 import json
 from urllib import request as rq
 
+from utils.settings import AppSettings
+
 
 class PortalBH():
     def __init__(self):
-        self.BASE_URL: str = "https://ckan.pbh.gov.br/api/3/action"
+        self.settings = AppSettings()
         self.HEADERS: dict[str, str] = {
             "User-Agent": "Mozilla/5.0",
             "Accept": "application/json"
         }
 
     def get_url(self, dataset_name: str, filename: str) -> str:
-        search_url: str = f"{self.BASE_URL}/package_search?q={dataset_name}"
+        dabh_api_enpoint = self.settings.DABH_API
+        search_url: str = f"{dabh_api_enpoint}/package_search?q={dataset_name}"
         request: rq.Request = rq.Request(search_url, headers=self.HEADERS)
 
         with rq.urlopen(request) as response:

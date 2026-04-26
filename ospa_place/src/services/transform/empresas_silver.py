@@ -1,38 +1,46 @@
-import logging
+import logging as lg
 import pandas as pd
 import sqlalchemy as sa
 
-from settings import AppSettings
+from utils.logger import Logger
+from utils.settings import AppSettings
 from models.atividade_economica import AtividadeEconomica
-
-
-logger = logging.getLogger(__name__)
 
 
 class EmpresasSilver():
     def __init__(self):
-        pass
+        self.settings = AppSettings()
+        self.empresas_table = AtividadeEconomica()
+        self.logger: lg.Logging = Logger().get_logger(__name__)
+        self.required_args = ["filename"]
 
-    def run(self, args: dict[str, str]):
-        logger.info("Running Empresas Silver Service")
+    def run(self, args):
+        self.logger.info("Running Empresas Silver Service")
 
-        settings = AppSettings()
+        missing_args = [
+            arg for arg in self.required_args
+            if getattr(args, arg, None) is None
+        ]
+
+        if missing_args:
+            self.logger.error(f"Missing required arguments: {', '.join(missing_args)}")
+            raise
+
         filename: str = args.filename
-        empresas_table = AtividadeEconomica()
 
         try:
-            logger.info("Creating tables")
-            engine: sa.Engine = sa.create_engine(settings.get_database_url())
-            empresas_table.__table__.create(engine, checkfirst=True)
+            self.logger.info("Creating tables")
+            engine: sa.Engine = sa.create_engine(self.settings.get_database_url())
+            self.empresas_table.__table__.create(engine, checkfirst=True)
 
-            logger.info(f"Reading file from s3://bronze/{filename}.csv")
+            self.logger.info(f"Reading file from s3://bronze/{filename}.csv")
             df_bronze: pd.DataFrame = pd.read_csv(
                 f"s3://bronze/{filename}.csv",
-                storage_options= settings.get_storage_options(),
+                storage_options=self.settings.get_storage_options(),
                 dtype=str
             )
 
-            logger.info("Cleaning and Parsing data")
+            self.logger.info("Cleaning and Parsing data")
             df_bronze.columns = df_bronze.columns.str.lower()
             for column in df_bronze.columns:
                 df_bronze[column] = df_bronze[column].str.lower().str.strip()
@@ -47,13 +55,13 @@ class EmpresasSilver():
                 {"sim": True, "s": True, "não": False, "n": False}
             )
 
-            logger.info("Saving file to database and s3://silver/")
+            self.logger.info("Saving file to database and s3://silver/")
             # I learnt that polygon can be saved as multipolygon
             # In this case when I save to the database, sqlalchemy will convert for me
             df_bronze.to_sql(
-                empresas_table.__tablename__,
+                self.empresas_table.__tablename__,
                 con=engine,
-                schema=empresas_table.__table__.schema,
+                schema=self.empresas_table.__table__.schema,
                 if_exists="delete_rows",
                 chunksize=100,
                 index=False
@@ -65,11 +73,11 @@ class EmpresasSilver():
             df_bronze.to_parquet(
                 f"s3://silver/{filename}.parquet",
                 engine="pyarrow",
-                storage_options= settings.get_storage_options()
+                storage_options=self.settings.get_storage_options()
             )
 
-            logger.info("Ran Empresas Silver Service")
+            self.logger.info("Ran Empresas Silver Service")
 
         except Exception as e:
-            logger.error(f"Failed to process: {e}", exc_info=True)
+            self.logger.error(f"Failed to process: {e}", exc_info=True)
             raise

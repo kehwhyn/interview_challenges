@@ -2,6 +2,7 @@ import sys
 import shutil
 from pathlib import Path
 
+
 DATA_LAKE = Path("data_lake")
 DATA_WAREHOUSE = Path("data_warehouse")
 

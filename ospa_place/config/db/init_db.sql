@@ -13,4 +13,3 @@ GRANT CREATE ON SCHEMA silver TO public;
 GRANT CREATE ON SCHEMA gold TO public;
 
 ALTER DATABASE dop SET search_path TO public, bronze, silver, gold;
-
