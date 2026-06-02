@@ -1,0 +1,36 @@
+version: '3'
+
+tasks:
+  start_services:
+    cmds:
+      - python config/utils/init_fs.py create
+      - docker compose up -d
+
+  stop_services:
+    cmds:
+      - docker compose down
+      - python config/utils/init_fs.py delete
+
+  run_bairros_bronze:
+    cmds:
+      - docker exec etl python main.py --service bairros_bronze --dataset bairro-oficial --filename 20230502_bairro_oficial
+
+  run_bairros_silver:
+    cmds:
+      - docker exec etl python main.py --service bairros_silver --filename 20230502_bairro_oficial
+
+  run_onibus_bronze:
+    cmds:
+      - docker exec etl python main.py --service onibus_bronze --dataset ponto-de-onibus --filename 20260401_ponto_onibus
+
+  run_onibus_silver:
+    cmds:
+      - docker exec etl python main.py --service onibus_silver --filename 20260401_ponto_onibus
+
+  run_empresas_bronze:
+    cmds:
+      - docker exec etl python main.py --service empresas_bronze --dataset atividade-economica --filename 20260401_atividade_economica
+
+  run_empresas_silver:
+    cmds:
+      - docker exec etl python main.py --service empresas_silver --filename 20260401_atividade_economica

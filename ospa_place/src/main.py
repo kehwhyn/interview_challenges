@@ -42,6 +42,7 @@ def main():
 
     try:
         service = service_class()
+        service.check_args(args)
         service.run(args)
 
     except Exception as e:

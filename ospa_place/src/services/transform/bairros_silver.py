@@ -17,16 +17,6 @@ class BairrosSilver():
 
     def run(self, args):
         self.logger.info("Running Bairros Silver Service")
-
-        missing_args = [
-            arg for arg in self.required_args
-            if getattr(args, arg, None) is None
-        ]
-
-        if missing_args:
-            self.logger.error(f"Missing required arguments: {', '.join(missing_args)}")
-            raise
-
         filename: str = args.filename
 
         try:
@@ -78,3 +68,14 @@ class BairrosSilver():
         except Exception as e:
             self.logger.error(f"Failed to process: {e}", exc_info=True)
             raise
+
+
+    def check_args(self, args):
+        missing_args = [
+            arg for arg in self.required_args
+            if getattr(args, arg, None) is None
+        ]
+
+        if missing_args:
+            logger.error(f"Missing required arguments: {', '.join(missing)}")
+            raise ValueError(f"Missing required arguments: {', '.join(missing)}")
